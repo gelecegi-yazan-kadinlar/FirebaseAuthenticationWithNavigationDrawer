@@ -1,14 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ProfileFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <ImageView
+        android:id="@+id/imageViewProfilePhoto"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/nav_profile_picture"/>
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Profile Fragment" />
-
-</FrameLayout>
+        android:id="@+id/textViewUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageViewProfilePhoto"
+        android:text="Tuba Bezek"
+        android:textSize="16dp"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
+        />
+    <TextView
+        android:id="@+id/textViewBio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/textViewUserName"
+        android:layout_marginTop="20dp"
+        android:text="Gezmeyi seven bir gezgin"
+        />
+    <TextView
+        android:id="@+id/textViewUserPlaces"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/textViewBio"
+        android:layout_marginTop="20dp"
+        android:text="Gezdiğim iller: "/>
+    <ImageView
+        android:id="@+id/imageViewProfileInstagram"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/instagram_ic"
+        android:layout_below="@id/textViewUserPlaces"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="40dp"/>
+</RelativeLayout>
