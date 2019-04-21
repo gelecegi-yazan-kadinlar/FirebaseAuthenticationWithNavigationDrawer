@@ -1,12 +1,15 @@
 package com.gyk.firebaseauthenticationwithnavigationdrawer;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -77,10 +80,28 @@ public class HomeFragment extends Fragment {
         ListView listView = (ListView) view.findViewById(R.id.listViewPost);
         PostAdapter adapter = new PostAdapter(postList,getContext());
         listView.setAdapter(adapter);
-
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Post clickedPost = postList.get(i);
+                showAlertDialog(clickedPost);
+            }
+        });
         return view;
     }
+    public void showAlertDialog(Post post){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Bilgiler");
+        builder.setIcon(post.getPhoto());
+        builder.setMessage(post.getTitle()+" \n"+post.getContent());
+        builder.setNegativeButton("Tamam", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
 
+            }
+        });
+        builder.show();
+    }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
