@@ -8,6 +8,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -55,7 +56,10 @@ public class RegisterActivity extends AppCompatActivity {
                     Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
                     //intent.putExtra("email",email);
                     startActivity(intent);
-
+                }else{
+                    Toast.makeText(RegisterActivity.this,
+                            "Kayıt olunamadı: "+task.getException(),
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
