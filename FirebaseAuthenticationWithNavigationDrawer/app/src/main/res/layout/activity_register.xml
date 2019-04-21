@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/register_login_background"
     tools:context=".RegisterActivity">
 
     <RelativeLayout
@@ -15,18 +16,19 @@
             android:id="@+id/editTextEmail"
             android:hint="Email adresiniz:"
             android:textColor="#fd7953"
+            android:inputType="textEmailAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-
-            />
+            android:textColorHint="#fff"/>
         <EditText
             android:id="@+id/editTextPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Parolanız"
+            android:hint="Parolanız:"
             android:inputType="textPassword"
             android:layout_marginTop="10dp"
+            android:textColorHint="#fff"
             android:padding="12dp"
             android:textColor="#fd7953"
             android:layout_below="@id/editTextEmail"/>
@@ -34,7 +36,8 @@
             android:id="@+id/editTextRepeatedPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Parola Tekrarı"
+            android:hint="Parola Tekrarı:"
+            android:textColorHint="#fff"
             android:inputType="textPassword"
             android:layout_marginTop="10dp"
             android:padding="12dp"
@@ -43,6 +46,7 @@
         <Button
             android:id="@+id/buttonSignUp"
             android:text="Kayıt Ol"
+            android:textColorHint="#fff"
             android:background="@color/colorPrimary"
             android:layout_marginTop="15dp"
             android:padding="16dp"
