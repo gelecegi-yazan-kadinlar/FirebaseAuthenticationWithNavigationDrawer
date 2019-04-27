@@ -1,5 +1,6 @@
 package com.gyk.firebaseauthenticationwithnavigationdrawer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -92,8 +95,14 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_profile:
                 selectedFragment = new ProfileFragment();
                 break;
+            case R.id.nav_notes:
+                selectedFragment = new MyNotesFragment();
+                break;
             case R.id.nav_signOut:
                 //signOut tıklandığında
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                this.finish();
                 break;
         }
         if(selectedFragment != null){
