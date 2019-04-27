@@ -4,11 +4,38 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.constraint.solver.widgets.Snapshot;
 import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.support.constraint.Constraints.TAG;
 
 
 /**
@@ -25,6 +52,17 @@ public class MyNotesFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    private FirebaseDatabase database;
+    private DatabaseReference dbRef;
+
+    private FirebaseAuth auth;
+    private FirebaseUser user;
+
+    private ListView listViewNote;
+    private List<String> noteList;
+    private List<String> keyList;
+    private ProgressBar progressBar;
+    private TextView textView;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -66,7 +104,83 @@ public class MyNotesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_my_notes, container, false);
+        final View view = inflater.inflate(R.layout.fragment_my_notes, container, false);
+        database = FirebaseDatabase.getInstance();
+        dbRef = database.getReference();
+        noteList = new ArrayList<>();
+        keyList = new ArrayList<>();
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+
+        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+
+        listViewNote = (ListView)
+                view.findViewById(R.id.listViewNotes);
+
+        final ArrayAdapter<String> arrayAdapter =
+                new ArrayAdapter<String>(getContext(),
+                        android.R.layout.simple_list_item_1,
+                        android.R.id.text1, noteList);
+        listViewNote.setAdapter(arrayAdapter);
+
+        textView = new TextView(getContext());
+        textView.setText("Hiç notun yok :(");
+        RelativeLayout relativeLayout = (RelativeLayout)
+                view.findViewById(R.id.relativeLayout);
+        relativeLayout.addView(textView);
+
+        RelativeLayout.LayoutParams layoutParams =
+                (RelativeLayout.LayoutParams)textView.getLayoutParams();
+        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        textView.setLayoutParams(layoutParams);
+        textView.setVisibility(View.GONE);
+
+        registerForContextMenu(listViewNote);
+
+        listViewNote.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+            @Override
+            public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+
+                if(view.getId() == R.id.listViewNotes){
+                    AdapterView.AdapterContextMenuInfo info =
+                            (AdapterView.AdapterContextMenuInfo) contextMenuInfo;
+                    contextMenu.setHeaderTitle("Not işlemleri");
+                    contextMenu.add(0,0,0,"Düzenle");
+                    contextMenu.add(0,1,0,"Sil");
+                }
+            }
+        });
+
+
+        dbRef.child("Notes").child(user.getUid())
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        //Log.d(TAG, "onDataChange: "+dataSnapshot);
+                        noteList.clear();
+                        keyList.clear();
+                        for (DataSnapshot note : dataSnapshot.getChildren()) {
+                            //Log.d(TAG, "onDataChange: "+note.getValue(String.class));
+                            keyList.add(note.getKey());
+                            Log.d(TAG, "onDataChange: "+note.getKey());
+                            noteList.add(note.getValue(String.class));
+                        }
+                        if(noteList.isEmpty()){
+                            textView.setVisibility(View.VISIBLE);
+                        }else{
+                            textView.setVisibility(View.GONE);
+                        }
+                        arrayAdapter.notifyDataSetChanged();
+                        progressBar.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
         ImageButton addNote = (ImageButton)
                 view.findViewById(R.id.imageButtonAddNote);
 
@@ -78,6 +192,47 @@ public class MyNotesFragment extends Fragment {
         });
         return view;
     }
+    public void deleteNote(String id){
+        dbRef.child("Notes").child(user.getUid()).child(id).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(getContext(), "Silindi", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getContext(), "Hata:"+task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        boolean val = false;
+        AdapterView.AdapterContextMenuInfo info =
+                (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()){
+            case 0:
+                Toast.makeText(getContext(), "Düzenle", Toast.LENGTH_SHORT).show();
+                updateNote(keyList.get(info.position),noteList.get(info.position));
+                val = true;
+
+                break;
+            case 1:
+                Toast.makeText(getContext(), "Sil", Toast.LENGTH_SHORT).show();
+                deleteNote(keyList.get(info.position));
+                val = true;
+                break;
+        }
+
+        return val;
+    }
+
+    private void updateNote(String key, String note) {
+        Intent intent = new Intent(getActivity(),UpdateNoteActivity.class);
+        intent.putExtra("key",key);
+        intent.putExtra("note",note);
+        startActivity(intent);
+    }
+
     public void goAddNoteActivity() {
         Intent addNoteIntent = new Intent(getActivity(), AddNoteActivity.class);
         startActivity(addNoteIntent);
