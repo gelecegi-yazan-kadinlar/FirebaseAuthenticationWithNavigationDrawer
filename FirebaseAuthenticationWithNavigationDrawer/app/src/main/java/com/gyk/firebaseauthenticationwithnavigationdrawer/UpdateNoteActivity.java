@@ -30,7 +30,7 @@ public class UpdateNoteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_note);
+        setContentView(R.layout.activity_update_note);
         database = FirebaseDatabase.getInstance();
         dbRef = database.getReference();
         auth = FirebaseAuth.getInstance();
