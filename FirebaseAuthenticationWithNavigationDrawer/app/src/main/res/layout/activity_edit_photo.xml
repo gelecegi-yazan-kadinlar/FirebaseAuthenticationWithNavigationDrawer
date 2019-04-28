@@ -13,21 +13,36 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp" />
 
+
     <Button
         android:id="@+id/buttonTakePhoto"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/imageViewProfilePhoto"
-        android:layout_margin="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
         android:text="Fotoğraf Çek" />
+
+    <Button
+        android:id="@+id/buttonChoose"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonTakePhoto"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="Galeriden seç" />
+
     <Button
         android:id="@+id/buttonSavePhoto"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/buttonTakePhoto"
-        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/buttonChoose"
         android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:text="Fotoğrafı kaydet" />
 </RelativeLayout>

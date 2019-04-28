@@ -16,13 +16,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
+
+import java.io.File;
+import java.io.IOException;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -40,6 +51,11 @@ public class ProfileFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private FirebaseAuth auth;
+    private FirebaseUser user;
+    private StorageReference storageReference;
+    private ImageView imageView;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -88,6 +104,15 @@ public class ProfileFragment extends Fragment {
 
         ImageView profileInstagram = (ImageView)
                 view.findViewById(R.id.imageViewProfileInstagram);
+
+        
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+        storageReference = FirebaseStorage.getInstance().getReference();
+        imageView = (ImageView) view.findViewById(R.id.imageViewProfilePhoto);
+        downloadProfilePhoto();
+
+
         ImageButton editPhoto = (ImageButton) view.findViewById(R.id.editPhoto);
         editPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,6 +128,29 @@ public class ProfileFragment extends Fragment {
             }
         });
         return view;
+    }
+    public void downloadProfilePhoto() {
+
+        try {
+            final File localFile = File.createTempFile("images", "jpg");
+            storageReference.child("ProfilePhotos").child(user.getUid()).getFile(localFile)
+                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            Picasso.get().load(localFile).centerCrop().fit().into(imageView);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Picasso.get().load(R.drawable.nav_profile_picture).centerCrop()
+                                    .fit().into(imageView);
+                        }
+                    });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     public void openEditPhotoActivity(){
         Intent intent = new Intent(getActivity(),EditPhotoActivity.class);

@@ -2,14 +2,18 @@ package com.gyk.firebaseauthenticationwithnavigationdrawer;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.app.admin.DevicePolicyManager;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -24,10 +28,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,11 +46,15 @@ import java.util.Date;
 public class EditPhotoActivity extends AppCompatActivity {
     private static final int IMAGE_ACTION_CODE = 102;
     private static final int CAMERA_PERMISSON_REQUEST_CODE = 103;
-    private File file;
+    private static final int IMAGE_REQUEST = 104;
+
+    private ProgressDialog progressDialog;
+
+    private Uri file;
     private FirebaseAuth auth;
     private FirebaseUser user;
     private StorageReference storageReference;
-    private ProgressDialog progressDialog;
+    private ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +64,9 @@ public class EditPhotoActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         storageReference = FirebaseStorage.getInstance().getReference();
+        imageView = (ImageView) findViewById(R.id.imageViewProfilePhoto);
+
+        downloadProfilePhoto();
         /* if (!checkPermission()) { //izinler kontrol edilir
             requestPermission(); //İzin verilmemiş ise izin istenir
         }*/
@@ -78,13 +91,53 @@ public class EditPhotoActivity extends AppCompatActivity {
                 savePhotoStorage();
             }
         });
+
+        Button buttonChoose = (Button) findViewById(R.id.buttonChoose);
+        buttonChoose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                choosePhoto();
+            }
+        });
+    }
+
+    public void choosePhoto() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Resim seçiniz"), IMAGE_REQUEST);
+
+    }
+
+    public void downloadProfilePhoto() {
+
+        try {
+            final File localFile = File.createTempFile("images", "jpg");
+            storageReference.child("ProfilePhotos").child(user.getUid()).getFile(localFile)
+                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            Picasso.get().load(localFile).centerCrop().fit().into(imageView);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Picasso.get().load(R.drawable.nav_profile_picture).centerCrop()
+                                    .fit().into(imageView);
+                        }
+                    });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void savePhotoStorage() {
         showProgressBar();
         if (file != null) {
             storageReference.child("ProfilePhotos")
-                    .child(user.getUid()).putFile(Uri.fromFile(file))
+                    .child(user.getUid()).putFile(file)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -103,7 +156,7 @@ public class EditPhotoActivity extends AppCompatActivity {
                         public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                             double progress = (100.0 * taskSnapshot.getBytesTransferred()) /
                                     taskSnapshot.getTotalByteCount();
-                            Log.d("FireStorage", "onSuccess: " + (int)progress);
+                            Log.d("FireStorage", "onSuccess: " + (int) progress);
                             progressDialog.setProgress((int) progress);
                             if (progressDialog.getProgress() == 100) {
                                 try {
@@ -149,12 +202,22 @@ public class EditPhotoActivity extends AppCompatActivity {
         switch (requestCode) {
             case IMAGE_ACTION_CODE:
                 Bundle extras = data.getExtras();
-                ImageView imageView = (ImageView) findViewById(R.id.imageViewProfilePhoto);
                 imageView.setImageBitmap((Bitmap) extras.get("data"));
                 if (createFolder()) {
                     saveImage((Bitmap) extras.get("data"));
+                    Picasso.get().load(file).centerCrop().fit().into(imageView);
                 } else {
                     Toast.makeText(this, "Kaydedilemedi!", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case IMAGE_REQUEST:
+
+                Log.d("Url", "onActivityResult: " + data.getData().getPath());
+                file = data.getData();
+                try {
+                    Picasso.get().load(data.getData()).centerCrop().fit().into(imageView);
+                } catch (Exception e) {
+                    Log.w("Picasso", "onActivityResult: ", e);
                 }
                 break;
         }
@@ -190,7 +253,7 @@ public class EditPhotoActivity extends AppCompatActivity {
             fOut.close(); // do not forget to close the stream
             MediaStore.Images.Media.insertImage(getContentResolver(),
                     file.getAbsolutePath(), file.getName(), file.getName());
-            this.file = file;
+            this.file = Uri.fromFile(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Log.w("SavePhoto", "saveImage: ", e);
