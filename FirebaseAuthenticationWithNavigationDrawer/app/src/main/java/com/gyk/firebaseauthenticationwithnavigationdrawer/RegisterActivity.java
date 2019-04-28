@@ -1,6 +1,7 @@
 package com.gyk.firebaseauthenticationwithnavigationdrawer;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -56,6 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
                     Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
                     //intent.putExtra("email",email);
                     startActivity(intent);
+                    saveUserEmail();
                 }else{
                     Toast.makeText(RegisterActivity.this,
                             "Kayıt olunamadı: "+task.getException(),
@@ -64,7 +66,11 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
-
+    public void saveUserEmail(){
+        SharedPreferences.Editor editor = getSharedPreferences(getPackageName(), MODE_PRIVATE).edit();
+        editor.putString("email", editTextEmail.getText().toString());
+        editor.apply();
+    }
     private boolean validate(String email, String password, String repeatedPassword) {
         boolean valid = true;
 
