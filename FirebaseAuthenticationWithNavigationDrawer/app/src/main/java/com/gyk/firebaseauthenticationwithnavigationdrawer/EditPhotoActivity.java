@@ -143,6 +143,7 @@ public class EditPhotoActivity extends AppCompatActivity {
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             Toast.makeText(EditPhotoActivity.this,
                                     "Fotoğraf yüklendi!", Toast.LENGTH_SHORT).show();
+                            onBackPressed();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

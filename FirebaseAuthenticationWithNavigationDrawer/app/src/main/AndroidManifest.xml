@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".EditPhotoActivity"></activity>
+        <activity android:name=".EditPhotoActivity"
+            android:parentActivityName=".MainActivity"></activity>
         <activity
             android:name=".UpdateNoteActivity"
             android:parentActivityName=".MainActivity" />

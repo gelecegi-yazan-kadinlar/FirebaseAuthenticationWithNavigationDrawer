@@ -2,11 +2,11 @@ package com.gyk.firebaseauthenticationwithnavigationdrawer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,20 +16,35 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    private ImageView imageView;
+    private FirebaseAuth auth;
+    private FirebaseUser user;
+    private StorageReference storageReference;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+        storageReference = FirebaseStorage.getInstance().getReference();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -48,8 +63,36 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View hView = navigationView.getHeaderView(0);
+
+        imageView = (ImageView) hView.findViewById(R.id.imageViewHeader);
+
+        downloadProfilePhoto();
 
         onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_home));
+    }
+    public void downloadProfilePhoto() {
+
+        try {
+            final File localFile = File.createTempFile("images", "jpg");
+            storageReference.child("ProfilePhotos").child(user.getUid()).getFile(localFile)
+                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            Picasso.get().load(localFile).centerCrop().fit().into(imageView);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Picasso.get().load(R.drawable.nav_profile_picture).centerCrop()
+                                    .fit().into(imageView);
+                        }
+                    });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -88,7 +131,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         Fragment selectedFragment = null;
-        switch (id){
+        switch (id) {
             case R.id.nav_home:
                 selectedFragment = new HomeFragment();
                 break;
@@ -101,13 +144,13 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_signOut:
                 //signOut tıklandığında
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 this.finish();
                 break;
         }
-        if(selectedFragment != null){
+        if (selectedFragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content_frame,selectedFragment);
+            transaction.replace(R.id.content_frame, selectedFragment);
             transaction.commit();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

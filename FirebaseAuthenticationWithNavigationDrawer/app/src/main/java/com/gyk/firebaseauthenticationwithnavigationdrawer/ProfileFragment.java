@@ -98,6 +98,12 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        downloadProfilePhoto();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
@@ -105,7 +111,7 @@ public class ProfileFragment extends Fragment {
         ImageView profileInstagram = (ImageView)
                 view.findViewById(R.id.imageViewProfileInstagram);
 
-        
+
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         storageReference = FirebaseStorage.getInstance().getReference();
