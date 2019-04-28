@@ -3,6 +3,8 @@
     package="com.gyk.firebaseauthenticationwithnavigationdrawer">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -11,8 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".UpdateNoteActivity"
-            android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".EditPhotoActivity"></activity>
+        <activity
+            android:name=".UpdateNoteActivity"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".AddNoteActivity"
             android:parentActivityName=".MainActivity" />

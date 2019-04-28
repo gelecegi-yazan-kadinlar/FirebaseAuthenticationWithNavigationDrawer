@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -87,6 +88,13 @@ public class ProfileFragment extends Fragment {
 
         ImageView profileInstagram = (ImageView)
                 view.findViewById(R.id.imageViewProfileInstagram);
+        ImageButton editPhoto = (ImageButton) view.findViewById(R.id.editPhoto);
+        editPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openEditPhotoActivity();
+            }
+        });
 
         profileInstagram.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +103,10 @@ public class ProfileFragment extends Fragment {
             }
         });
         return view;
+    }
+    public void openEditPhotoActivity(){
+        Intent intent = new Intent(getActivity(),EditPhotoActivity.class);
+        startActivity(intent);
     }
     public void openInstagram(){
         Uri instagramUri = Uri.parse("https://www.instagram.com/furkankyl");

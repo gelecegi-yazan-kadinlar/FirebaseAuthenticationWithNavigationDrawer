@@ -5,18 +5,32 @@
     android:layout_height="match_parent"
     tools:context=".ProfileFragment">
 
-    <ImageView
-        android:id="@+id/imageViewProfilePhoto"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_centerHorizontal="true"
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:src="@drawable/nav_profile_picture"/>
+        android:layout_centerHorizontal="true">
+        <ImageView
+            android:id="@+id/imageViewProfilePhoto"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/nav_profile_picture"/>
+        <ImageButton
+            android:id="@+id/editPhoto"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_camera_alt_black_24dp"
+            android:background="#00FFFFFF"
+            />
+    </RelativeLayout>
+
     <TextView
         android:id="@+id/textViewUserName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/imageViewProfilePhoto"
+        android:layout_below="@id/relativeLayout"
         android:text="Tuba Bezek"
         android:textSize="16dp"
         android:layout_marginTop="40dp"
