@@ -91,6 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                         saveUserEmail();
                     }else{
                         deleteUserEmail();
+
                     }
                     Intent intent =
                             new Intent(LoginActivity.this,MainActivity.class);
@@ -111,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.apply();
     }
     public void deleteUserEmail(){
-        SharedPreferences.Editor editor = 
+        SharedPreferences.Editor editor =
                 getSharedPreferences(getPackageName(), MODE_PRIVATE).edit();
         editor.remove("email");
         editor.apply();

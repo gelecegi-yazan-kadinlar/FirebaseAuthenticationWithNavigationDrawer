@@ -58,7 +58,7 @@
             android:layout_below="@id/textInputPassword"/>
         <Button
             android:id="@+id/buttonSignIn"
-            android:text="Giriş yap"
+            android:text="@string/signIn"
             android:background="@color/blue"
             android:layout_marginTop="15dp"
             android:padding="16dp"
